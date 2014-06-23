@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: tect-media
-Plugin URI: https://github.com/Arty2/wp-tect-media
+Plugin URI: https://github.com/Arty2/tect-media
 Description: A plugin that restructures WordPress’s default upload and media behaviour, meant to complement the “tect” theme.
 Author: Heracles Papatheodorou
 License: MIT License
-GitHub Plugin URI: https://github.com/Arty2/wp-tect-media
+GitHub Plugin URI: https://github.com/Arty2/tect-media
 Version: 1.0.0
 */
 
