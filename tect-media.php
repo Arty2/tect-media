@@ -17,9 +17,14 @@ Version: 1.0.0
 	//don't “Organize my uploads into month- and year-based folders”
 	update_option( 'uploads_use_yearmonth_folders', '0' ); // to-do: add to options page
 
-	//create a custom WP_Image_Editor that handles the naming of files
-	//based on http://wordpress.stackexchange.com/questions/125784/each-custom-image-size-in-custom-upload-directory
-	//reference: https://github.com/WordPress/WordPress/blob/master/wp-includes/class-wp-image-editor.php
+
+/*--------------------------------------------------------------
+Place thumbnails in their individual directores
+create a custom WP_Image_Editor that handles the naming of files
+based on http://wordpress.stackexchange.com/questions/125784/each-custom-image-size-in-custom-upload-directory
+reference: https://github.com/WordPress/WordPress/blob/master/wp-includes/class-wp-image-editor.php
+--------------------------------------------------------------*/
+	
 	function tect_image_editors($editors) {
 		array_unshift( $editors, 'WP_Image_Editor_tect' );
 
@@ -31,15 +36,26 @@ Version: 1.0.0
 	require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
 	require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
 
+	//also port to ImageMagick at some point
 	class WP_Image_Editor_tect extends WP_Image_Editor_GD {
 		public function multi_resize($sizes) {
+			if ( 'image/jpeg' == $this->mime_type && function_exists('imageinterlace') ) {
+				//Save progressive JPGs
+				//https://core.trac.wordpress.org/ticket/21668
+				imagefilter( $this->image, IMG_FILTER_NEGATE ); //DEBUG
+				imageinterlace( $this->image, true );
+			}
+
 			$sizes = parent::multi_resize($sizes);
 			
 			$media_dir = trailingslashit( ABSPATH . UPLOADS );
 
 			foreach($sizes as $slug => $data) {
 				$default_name = $sizes[ $slug ]['file'];
-				$new_name = $slug . '/' . preg_replace( '#-\d+x\d+\.#', '.', $data['file'] );
+				// $new_name = $slug . '/' . preg_replace( '#-\d+x\d+\.#', '.', $data['file'] ); //DEBUG
+				$new_name = $slug . '/' . str_replace( '-' . $sizes[ $slug ]['width'] . 'x' . $sizes[ $slug ]['height'] . '.', '.', $data['file'] );
+				
+				//PHP bug messes unicode filenames on Windows: https://core.trac.wordpress.org/ticket/15955
 
 				if ( !is_dir( $media_dir . $slug ) ) {
 					mkdir( $media_dir . $slug );
@@ -52,6 +68,9 @@ Version: 1.0.0
 			return $sizes;
 		}
 	}
+
+
+
 
 /*--------------------------------------------------------------
 Image related
