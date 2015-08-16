@@ -42,7 +42,7 @@ reference: https://github.com/WordPress/WordPress/blob/master/wp-includes/class-
 			if ( 'image/jpeg' == $this->mime_type && function_exists('imageinterlace') ) {
 				//Save progressive JPGs
 				//https://core.trac.wordpress.org/ticket/21668
-				imagefilter( $this->image, IMG_FILTER_NEGATE ); //DEBUG
+				// imagefilter( $this->image, IMG_FILTER_NEGATE ); //DEBUG
 				imageinterlace( $this->image, true );
 			}
 
